@@ -154,9 +154,10 @@ row.names(dtbl_land_sea) = c('sea', 'land')
 
 stargazer::stargazer(dtbl_land_sea, 
                      summary = FALSE, 
-                     rownames = FALSE, 
-                     header = FALSE, 
-                     table.placement = 'h', 
+                     rownames = TRUE, 
+                     header = FALSE,
+                     float = FALSE,
+                     table.placement = '!h', 
                      title = 'Land and Sea Proportions')
 
 
@@ -217,6 +218,7 @@ stargazer::stargazer(sum_stats_glac,
                      summary = FALSE, 
                      rownames = FALSE, 
                      header = FALSE, 
+                     float = FALSE,
                      table.placement = 'h', 
                      title = 'Days and RGTs')
 
@@ -235,6 +237,7 @@ stargazer::stargazer(dat_glac_smpl[, ..cols_display],
                      summary = FALSE, 
                      rownames = FALSE, 
                      header = FALSE, 
+                     float = FALSE,
                      table.placement = 'h', 
                      title = 'Southern Patagonian Ice Field')
 

@@ -268,7 +268,9 @@ select_aoi_global_grid <- R6::R6Class("select_aoi_global_grid",
 
                                            shiny::observeEvent(input$undefined_draw_edited_features, {                       # 'edit' existing feature
                                              edited <<- input$undefined_draw_edited_features
-                                             ids <- unlist(lapply(draw_obj, function(x){x$properties$`_leaflet_id`}))
+                                             ids <- unlist(lapply(draw_obj, function(x) {
+                                               x$properties$`_leaflet_id`
+                                             }))
 
                                              lapply(edited$features, function(x){
                                                loc <- match(x$properties$`_leaflet_id`, ids)
@@ -283,8 +285,13 @@ select_aoi_global_grid <- R6::R6Class("select_aoi_global_grid",
                                              }
                                            })
 
-                                           shiny::observeEvent(input$done, { shiny::stopApp(returnValue = draw_obj) })     # 'returnValue' is the value that should be returned from the 'shiny::runGadget'
-                                           shiny::observeEvent(input$cancel, { shiny::stopApp (returnValue = NULL) })
+                                           shiny::observeEvent(input$done, {
+                                             shiny::stopApp(returnValue = draw_obj)
+                                           })
+                                                  # 'returnValue' is the value that should be returned from the 'shiny::runGadget'
+                                           shiny::observeEvent(input$cancel, {
+                                             shiny::stopApp (returnValue = NULL)
+                                           })
 
                                            # session$onSessionEnded(function() {
                                            #   shiny::stopApp()
@@ -463,7 +470,7 @@ select_aoi_global_grid <- R6::R6Class("select_aoi_global_grid",
                                                                                leaflet_provider_base = self$leaflet_provider_base,
                                                                                leaflet_provider_secondary = self$leaflet_provider_secondary,
                                                                                overlay_group = NULL,                                           # !! set this group to NULL for the 'sync' map to work
-                                                                               overlay_polylines = 'Grid Tile to Download',
+                                                                               overlay_polylines = 'Grid Cell',
                                                                                width = 750,
                                                                                height = 750,
                                                                                popup = 'area',                                # use the 'area' column to display the area per grid cell
