@@ -1,9 +1,9 @@
 ---
-title: "IceSat-2 Mission Orbits"
+title: "ICESat-2 Mission Orbits"
 output: rmarkdown::pdf_document
 always_allow_html: true
 vignette: >
-  %\VignetteIndexEntry{IceSat-2 Mission Orbits}
+  %\VignetteIndexEntry{ICESat-2 Mission Orbits}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 urlcolor: blue
@@ -23,99 +23,36 @@ knitr::opts_chunk$set(fig.width = 4,
 
 <br>
 
-This *first* vignette demonstrates how to download and process *time specific orbits*. We'll download one of the *Reference Ground Track (RGT) cycles* and merge it with other data sources with the purpose to visualize specific areas. 
+This *first* vignette demonstrates how to download and process *time specific orbits*. We'll use one of the *Reference Ground Track (RGT) cycles* and merge it with other data sources with the purpose to visualize specific areas. 
 
-We choose one of the latest which is *"RGT_cycle_14"* (from *December 22, 2021* to *March 23, 2022*) and utilize 8 threads to speed up the pre-processing of the downloaded .kml files (the function takes approximately 15 minutes on my Linux Personal Computer),
+We'll load one of the latest which is *"RGT_cycle_14"* (from *December 22, 2021* to *March 23, 2022*). The documentation of the *"RGT_cycle_14"* data includes more details on how a user can come to the same data format for any of the RGT Cycles.
 
 <br>
 
 ```{r}
 
-require(IceSat2R)
-require(magrittr)
-require(sf)
+pkgs = c('IceSat2R', 'magrittr', 'mapview', 'sf', 'rnaturalearth', 
+         'data.table', 'DT', 'stargazer')
+load_pkgs = lapply(pkgs, require, character.only = TRUE)  # load required R packages
 
 sf::sf_use_s2(use_s2 = FALSE)                        # disable 's2' in this vignette
 mapview::mapviewOptions(leafletHeight = '600px', 
                         leafletWidth = '700px')      # applies to all leaflet maps
 
-```
+#.............................
+# load the 'RGT_cycle_14' data
+#.............................
 
-```{r, eval = FALSE}
+data(RGT_cycle_14)
 
-avail_cycles = available_RGTs(only_cycle_names = TRUE)
-avail_cycles
-# [1] "RGT_cycle_1"  "RGT_cycle_2"  "RGT_cycle_3"  "RGT_cycle_4"  "RGT_cycle_5"  "RGT_cycle_6"  
-#     "RGT_cycle_7"  "RGT_cycle_8"  "RGT_cycle_9"  "RGT_cycle_10" "RGT_cycle_11" "RGT_cycle_12" 
-#     "RGT_cycle_13" "RGT_cycle_14" "RGT_cycle_15"
-
-choose_cycle = avail_cycles[14]
-choose_cycle
-# [1] "RGT_cycle_14"
-
-
-res_rgt_many = time_specific_orbits(RGT_cycle = choose_cycle,
-                                    download_method = 'curl',
-                                    threads = 8,
-                                    verbose = TRUE)
-
-```
-
-<br>
-
-We'll then create a data.table based on the *coordinates*, *Date*, *Day of Year*, *Time* and *RGT*,
-
-<br>
-
-```{r, eval = FALSE}
-
-rgt_subs = sf::st_coordinates(res_rgt_many)
-colnames(rgt_subs) = c('longitude', 'latitude')
-rgt_subs = data.table::data.table(rgt_subs)
-rgt_subs$day_of_year = res_rgt_many$day_of_year
-rgt_subs$Date = as.Date(res_rgt_many$Date_time)
-rgt_subs$hour = lubridate::hour(res_rgt_many$Date_time)
-rgt_subs$minute = lubridate::minute(res_rgt_many$Date_time)
-rgt_subs$second = lubridate::second(res_rgt_many$Date_time)
-rgt_subs$RGT = res_rgt_many$RGT
-
-```
-
-
-```{r, echo = FALSE, eval = FALSE}
-
-#..........................................................
-# I saved the 'rgt_subs' object as RDS initially
-# so that I don't have to call the 'time_specific_orbits()'
-# function in the vignette
-#..........................................................
-
-# saveRDS(object = rgt_subs, file = 'RGT_cycle_14.RDS')
-
-```
-
-
-```{r, echo = FALSE}
-
-#..............................................
-# load the saved data and create an 'sf' object
-#..............................................
-
-pth_rds = system.file('data_files/RGT_cycle_14.RDS', package = "IceSat2R")
-rgt_subs = readRDS(file = pth_rds)
-
-```
-
-```{r}
-
-res_rgt_many = sf::st_as_sf(x = rgt_subs, coords = c('longitude', 'latitude'), crs = 4326)
+res_rgt_many = sf::st_as_sf(x = RGT_cycle_14, coords = c('longitude', 'latitude'), crs = 4326)
 res_rgt_many
 
 ```
 
 <br>
 
-## Icesat-2 and Countries intersection
+## ICESat-2 and Countries intersection
 
 <br>
 
@@ -216,11 +153,11 @@ all RGT's (1387 in number) intersect with *"Antarctica"* and almost all with *"R
 
 <br>
 
-## 'Onshore' and 'Offshore' Points IceSat-2 coverage
+## 'Onshore' and 'Offshore' Points ICESat-2 coverage
 
 <br>
 
-The **onshore** and **offshore** number of IceSat-2 points and percentages for the *"RGT_cycle_14"* equal to
+The **onshore** and **offshore** number of ICESat-2 points and percentages for the *"RGT_cycle_14"* equal to
 
 <br>
 
@@ -256,18 +193,17 @@ stargazer::stargazer(dtbl_land_sea,
 
 <br>
 
-## Global glaciated areas and IceSat-2 coverage
+## Global glaciated areas and ICESat-2 coverage
 
 <br>
 
-We can also observe the IceSat-2 *"RGT_cycle_14"* coverage based on the 1 to 10 million large scale [Natural Earth Glaciated Areas](https://www.naturalearthdata.com/downloads/10m-physical-vectors/10m-glaciated-areas/) data,
+We can also observe the ICESat-2 *"RGT_cycle_14"* coverage based on the 1 to 10 million large scale [Natural Earth Glaciated Areas](https://www.naturalearthdata.com/downloads/10m-physical-vectors/10m-glaciated-areas/) data,
 
 <br>
 
 ```{r}
 
-ne_glaciers = system.file('data_files', 'ne_10m_glaciated_areas.RDS', package = "IceSat2R")
-ne_obj = readRDS(file = ne_glaciers)
+data(ne_10m_glaciated_areas)
 
 ```
 
@@ -279,7 +215,7 @@ We'll restrict the processing to the major polar glaciers (that have a name incl
 
 ```{r}
 
-ne_obj_subs = subset(ne_obj, !is.na(name))
+ne_obj_subs = subset(ne_10m_glaciated_areas, !is.na(name))
 ne_obj_subs = sf::st_make_valid(x = ne_obj_subs)      # check validity of geometries
 ne_obj_subs
 
@@ -303,7 +239,7 @@ mpv
 
 <br>
 
-We will see which orbits of the IceSat-2 *"RGT_cycle_14"* intersect with these major polar glaciers,
+We will see which orbits of the ICESat-2 *"RGT_cycle_14"* intersect with these major polar glaciers,
 
 <br>
 
@@ -364,7 +300,7 @@ stargazer::stargazer(sum_stats_glac,
 
 <br>
 
-We can restrict to one of the glaciers to visualize the IceSat-2 *"RGT_cycle_14"* coverage over this specific area (*'Southern Patagonian Ice Field'*),
+We can restrict to one of the glaciers to visualize the ICESat-2 *"RGT_cycle_14"* coverage over this specific area (*'Southern Patagonian Ice Field'*),
 
 <br>
 

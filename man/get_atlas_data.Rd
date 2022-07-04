@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_Atlas_data.R
 \name{get_atlas_data}
 \alias{get_atlas_data}
-\title{Get IceSat-2 ATLAS data for a specific Date}
+\title{Get ICESat-2 ATLAS data for a specific Date}
 \usage{
 get_atlas_data(
   minx,
@@ -57,7 +57,7 @@ get_atlas_data(
 if the 'file_path_zip' parameter is NULL it returns either a data.table (if outputFormat is 'csv') or a nested list (if outputFormat is 'json') else the file path where the .zip file is saved. In case that the 'outputFormat' is set to 'zip' and the 'file_path_zip' parameter to NULL then a data.table will be returned.
 }
 \description{
-Get IceSat-2 ATLAS data for a specific Date
+This function allows the user to download ICESat-2 ATLAS Product data for a specific date, bounding box, track and beam.
 }
 \details{
 \describe{
@@ -120,7 +120,7 @@ sf_obj
 
 
 #....................................................
-# first we find available IceSat-2 track-ID's
+# first we find available ICESat-2 track-ID's
 # and Dates (time interval) from a specific RGT cycle
 #....................................................
 
@@ -136,11 +136,11 @@ res_rgt_many = time_specific_orbits(date_from = approx_date_start,
                                     verbose = TRUE)
 res_rgt_many
 
-#.....................................................
-# then we create the bounding of the selected area and
-# proceed to the intersection with the computed RGT's
+#.........................................................
+# then we create the bounding box of the selected area
+# and proceed to the intersection with the computed RGT's
 # ( include the bounding box for reproducibility )
-#.....................................................
+#.........................................................
 
 bbx_aoi = sf::st_bbox(obj = sf_obj)
 # c(xmin = 140, ymin = -6.641235, xmax = 145, ymax = -1.641235)
@@ -170,39 +170,9 @@ rgt_subs
 # match the OpenAltimetry Track-ID's
 #..........................................
 
-tracks_dates_RGT = tracks_dates_OpenAltimetry = list()
-
-for (item in 1:nrow(rgt_subs)) {
-
-  dat_item = rgt_subs[item, , drop = F]
-  Date = as.Date(dat_item$Date_time)
-
-  op_tra = getTracks(minx = as.numeric(bbx_aoi['xmin']),
-                     miny = as.numeric(bbx_aoi['ymin']),
-                     maxx = as.numeric(bbx_aoi['xmax']),
-                     maxy = as.numeric(bbx_aoi['ymax']),
-                     date = as.character(Date),
-                     outputFormat = 'csv',
-                     download_method = 'curl',
-                     verbose = FALSE)
-
-  date_obj = dat_item$Date_time
-  tim_rgt = glue::glue("Date: {date_obj} Time specific RGT: '{dat_item$RGT}'")
-
-  if (nrow(op_tra) > 0) {
-    iter_op_trac = paste(op_tra$track, collapse = ', ')
-    cat(glue::glue("{tim_rgt}  OpenAltimetry: '{iter_op_trac}'"), '\n')
-
-    tracks_dates_RGT[[as.character(Date)]] = dat_item$RGT
-    tracks_dates_OpenAltimetry[[as.character(Date)]] = op_tra$track
-  }
-  else {
-    cat(glue::glue("{tim_rgt} without an OpenAltimetry match!"), '\n')
-  }
-}
-
-str(tracks_dates_RGT)
-str(tracks_dates_OpenAltimetry)
+dtbl_rgts = verify_RGTs(nsidc_rgts = rgt_subs,
+                        bbx_aoi = bbx_aoi,
+                        verbose = TRUE)
 
 #...................................
 # we will iterate over the available:
@@ -212,8 +182,8 @@ str(tracks_dates_OpenAltimetry)
 # to gather the up to 5-degree data
 #..................................
 
-dates_iters = names(tracks_dates_RGT)
-RGTs_iters = unlist(tracks_dates_RGT)
+dates_iters = unique(dtbl_rgts$Date_time)
+RGTs_iters = unique(dtbl_rgts$RGT_NSIDC)
 prods_5_degrs = c('atl06', 'atl07', 'atl08', 'atl10', 'atl12', 'atl13')
 
 dat_out = logs_out = list()

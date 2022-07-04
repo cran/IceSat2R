@@ -9,9 +9,9 @@ knitr::opts_chunk$set(warning = FALSE,
 
 ## ---- eval = TRUE-------------------------------------------------------------
 
-require(IceSat2R)
-require(magrittr)
-require(sf)
+pkgs = c('IceSat2R', 'sf', 'mapview', 'data.table', 'stargazer', 'glue', 'utils',
+         'reshape2', 'plotly', 'magrittr', 'geodist', 'CopernicusDEM', 'terra')
+load_pkgs = lapply(pkgs, require, character.only = TRUE)  # load required R packages
 
 sf::sf_use_s2(use_s2 = FALSE)                        # disable 's2' in this vignette
 mapview::mapviewOptions(leafletHeight = '600px', 
@@ -158,15 +158,13 @@ mapview::mapviewOptions(leafletHeight = '600px',
 
 ## -----------------------------------------------------------------------------
 #  
-#  #.......................................
-#  # extract the 'Greenland Ice Sheet'
-#  # glacier from the 'Natural Earth' data
-#  #.......................................
+#  #...............................
+#  # load the 'Greenland Ice Sheet'
+#  #...............................
 #  
-#  ne_glaciers = system.file('data_files', 'ne_10m_glaciated_areas.RDS', package = "IceSat2R")
-#  ne_obj = readRDS(file = ne_glaciers)
+#  data(ne_10m_glaciated_areas)
 #  
-#  greenl_sh = subset(ne_obj, name == "Greenland Ice Sheet")
+#  greenl_sh = subset(ne_10m_glaciated_areas, name == "Greenland Ice Sheet")
 #  greenl_sh
 #  
 
@@ -300,58 +298,6 @@ mapview::mapviewOptions(leafletHeight = '600px',
 
 ## -----------------------------------------------------------------------------
 #  
-#  #...................................................
-#  # function to find which of the time specific RGT's
-#  # match the OpenAltimetry Track-ID's
-#  #...................................................
-#  
-#  verify_RGTs = function(rgt_subs, bbx_aoi, verbose = FALSE) {
-#  
-#    tracks_dates_RGT = list()
-#  
-#    for (item in 1:nrow(rgt_subs)) {
-#  
-#      dat_item = rgt_subs[item, , drop = F]
-#      Date = as.Date(dat_item$Date_time)
-#  
-#      op_tra = getTracks(minx = as.numeric(bbx_aoi['xmin']),
-#                         miny = as.numeric(bbx_aoi['ymin']),
-#                         maxx = as.numeric(bbx_aoi['xmax']),
-#                         maxy = as.numeric(bbx_aoi['ymax']),
-#                         date = as.character(Date),
-#                         outputFormat = 'csv',
-#                         download_method = 'curl',
-#                         verbose = FALSE)
-#  
-#      date_obj = dat_item$Date_time
-#      tim_rgt = glue::glue("Date: {date_obj} Time specific RGT: '{dat_item$RGT}'")
-#  
-#      if (nrow(op_tra) > 0) {
-#  
-#        inters_trc = intersect(op_tra$track, dat_item$RGT)
-#  
-#        if (length(inters_trc) > 0) {
-#  
-#          iter_op_trac = paste(op_tra$track, collapse = ', ')
-#          if (verbose) cat(glue::glue("Row: {item} {tim_rgt}  OpenAltimetry: '{iter_op_trac}'"), '\n')
-#  
-#          num_subl = glue::glue("{as.character(Date)}_{inters_trc}")
-#          tracks_dates_RGT[[num_subl]] = data.table::setDT(list(date = as.character(Date),
-#                                                                RGT = inters_trc))
-#        }
-#      }
-#      else {
-#        if (verbose) cat(glue::glue("{tim_rgt} without an OpenAltimetry match!"), '\n')
-#      }
-#    }
-#  
-#    tracks_dates_RGT = data.table::rbindlist(tracks_dates_RGT)
-#    return(tracks_dates_RGT)
-#  }
-#  
-
-## -----------------------------------------------------------------------------
-#  
 #  #.........................................................
 #  # we keep the relevant columns and remove duplicated
 #  # Dates and RGTs to iterate over each pair of observations
@@ -366,11 +312,13 @@ mapview::mapviewOptions(leafletHeight = '600px',
 #  dups_w = which(duplicated(sf::st_drop_geometry(subs_rgt_w_trc)))
 #  subs_rgt_w_trc = subs_rgt_w_trc[-dups_w, ]
 #  
-#  ver_trc_winter = verify_RGTs(rgt_subs = subs_rgt_w_trc,
+#  ver_trc_winter = verify_RGTs(nsidc_rgts = subs_rgt_w_trc,
 #                               bbx_aoi = bbx_greenl_sh_east,
 #                               verbose = TRUE)
 #  
-#  colnames(ver_trc_winter) = c('date_winter', 'RGT')
+#  # split(ver_trc_winter, by = 'Date_time')
+#  
+#  colnames(ver_trc_winter) = c('date_winter', 'RGT_OpenAlt', 'RGT_NSIDC')
 #  
 #  #.......
 #  # summer
@@ -381,31 +329,32 @@ mapview::mapviewOptions(leafletHeight = '600px',
 #  dups_s = which(duplicated(sf::st_drop_geometry(subs_rgt_s_trc)))
 #  subs_rgt_s_trc = subs_rgt_s_trc[-dups_s, ]
 #  
-#  ver_trc_summer = verify_RGTs(rgt_subs = subs_rgt_s_trc,
+#  ver_trc_summer = verify_RGTs(nsidc_rgts = subs_rgt_s_trc,
 #                               bbx_aoi = bbx_greenl_sh_east,
 #                               verbose = TRUE)
 #  
-#  colnames(ver_trc_summer) = c('date_summer', 'RGT')
+#  colnames(ver_trc_summer) = c('date_summer', 'RGT_OpenAlt', 'RGT_NSIDC')
 #  
 #  #.............
 #  # merge by RGT
 #  #.............
 #  
-#  rgts_ws = merge(ver_trc_winter, ver_trc_summer, by = 'RGT')
+#  rgts_ws = merge(ver_trc_winter[, 1:2], ver_trc_summer[, 1:2], by = 'RGT_OpenAlt')
+#  colnames(rgts_ws) = c('RGT', 'date_winter', 'date_summer')
 #  rgts_ws
 #  
-#  #       RGT date_summer date_winter
-#  #   1:    2  2021-06-23  2020-12-24
-#  #   2:   10  2021-06-24  2020-12-24
-#  #   3:   11  2021-06-24  2020-12-24
-#  #   4:   17  2021-06-24  2020-12-25
-#  #   5:   18  2021-06-24  2020-12-25
+#  #       RGT date_winter date_summer
+#  #   1:    2  2020-12-24  2021-06-23
+#  #   2:   10  2020-12-24  2021-06-24
+#  #   3:   11  2020-12-24  2021-06-24
+#  #   4:   17  2020-12-25  2021-06-24
+#  #   5:   18  2020-12-25  2021-06-24
 #  #  ---
-#  # 214: 1366  2021-06-22  2020-12-22
-#  # 215: 1367  2021-06-22  2020-12-22
-#  # 216: 1373  2021-06-22  2020-12-23
-#  # 217: 1374  2021-06-22  2020-12-23
-#  # 218: 1382  2021-06-23  2020-12-23
+#  # 226: 1366  2020-12-22  2021-06-22
+#  # 227: 1367  2020-12-22  2021-06-22
+#  # 228: 1373  2020-12-23  2021-06-22
+#  # 229: 1374  2020-12-23  2021-06-22
+#  # 230: 1382  2020-12-23  2021-06-23
 #  
 
 ## ---- echo = F----------------------------------------------------------------
@@ -468,7 +417,6 @@ mapview::mapviewOptions(leafletHeight = '600px',
 #                            left = FALSE)
 #  
 #  subs_join_w = sf::st_as_sfc(unique(sf::st_geometry(subs_join_w)), crs = 4326)
-#  
 #  subs_join_w
 #  
 #  # Geometry set for 9 features
@@ -495,7 +443,6 @@ mapview::mapviewOptions(leafletHeight = '600px',
 #                            left = FALSE)
 #  
 #  subs_join_s = sf::st_as_sfc(unique(sf::st_geometry(subs_join_s)), crs = 4326)
-#  
 #  subs_join_s
 #  
 #  # Geometry set for 9 features
@@ -713,7 +660,6 @@ stargazer::stargazer(logs_out_dtbl,
 #  #...............
 #  
 #  w_subs = dat_out_w[[sublist_name]]
-#  
 #  w_subs
 #  
 #  
@@ -738,7 +684,6 @@ stargazer::stargazer(logs_out_dtbl,
 #  #...............
 #  
 #  s_subs = dat_out_s[[sublist_name]]
-#  
 #  s_subs
 #  
 #  #               date segment_id longitude latitude      h_li atl06_quality_summary track_id beam
@@ -817,18 +762,18 @@ plotly_beams = function(spl_data,
   
   #......................
   # plot for all segments
-  #......................
-
-  fig_lines = plotly::plot_ly(data = subs_iter,
-                              x = ~segment_id_winter,
-                              y = ~value,
-                              color = ~variable,
-                              colors = c("blue", "red"), 
-                              line = list(width = 2),
-                              text = ~glue::glue("land-ice-height: {value}  Segment-id: {segment_id_winter}"),
-                              hoverinfo = "text",
-                              width = left_width,
-                              height = left_height) %>%
+   #......................
+  
+    fig_lns = plot_ly(data = subs_iter,
+                      x = ~segment_id_winter,
+                      y = ~value,
+                      color = ~variable,
+                      colors = c("blue", "red"), 
+                      line = list(width = 2),
+                      text =~glue::glue("land-ice-height: {value} Segment-id: {segment_id_winter}"),
+                      hoverinfo = "text",
+                      width = left_width,
+                      height = left_height) %>%
     
     plotly::layout(xaxis = list(gridcolor = "grey", showgrid = T),
                    yaxis = list(gridcolor = "grey", showgrid = T)) %>%
@@ -840,29 +785,27 @@ plotly_beams = function(spl_data,
   #..............................
   
   segm_ids = 588326:588908     # this subset of segments show a big difference betw. summer and winter
+  plt_title = glue::glue("Beam: '{beam}' ( Segments: from {min(segm_ids)} to {max(segm_ids)} )")
   subs_iter_segm = subset(subs_iter, segment_id_winter %in% segm_ids)
   
-  fig_lines_splt = plotly::plot_ly(data = subs_iter_segm,
-                                   x = ~segment_id_winter,
-                                   y = ~value,
-                                   color = ~variable,
-                                   colors = c("blue", "red"), 
-                                   line = list(width = 2),
-                                   text = ~glue::glue("land-ice-height: {value}  Segment-id: {segment_id_winter}"),
-                                   hoverinfo = "text",
-                                   width = right_width,
-                                   height = right_height) %>%
+    fig_spl = plot_ly(data = subs_iter_segm,
+                  x = ~segment_id_winter,
+                  y = ~value,
+                  color = ~variable,
+                  colors = c("blue", "red"), 
+                  line = list(width = 2),
+                  text =~glue::glue("land-ice-height: {value} Segment-id: {segment_id_winter}"),
+                  hoverinfo = "text",
+                  width = right_width,
+                  height = right_height) %>%
     
     plotly::layout(xaxis = list(gridcolor = "grey", showgrid = T),
                    yaxis = list(gridcolor = "grey", showgrid = T)) %>%
     
     plotly::add_lines(showlegend = FALSE)
   
-  both_plt = plotly::subplot(list(fig_lines, fig_lines_splt), 
-                             nrows = 1, 
-                             margin = 0.03, 
-                             widths = c(0.7, 0.3)) %>% 
-    plotly::layout(title = glue::glue("Beam: '{beam}' ( Segments: from {min(segm_ids)} to {max(segm_ids)} )"))
+  both_plt = plotly::subplot(list(fig_lns, fig_spl), nrows=1, margin = 0.03, widths = c(0.7, 0.3)) %>% 
+    plotly::layout(title = plt_title)
   # plotly::export(p = both_plt, file = glue::glue('{beam}.png'))
   
   return(both_plt)
@@ -935,7 +878,6 @@ plt_gt1r
 #                                                        median = median(sw_hq_merg$dif_height),
 #                                                        max = max(sw_hq_merg$dif_height),
 #                                                        N_rows = nrow(sw_hq_merg)))
-#  
 #      #.......................................
 #      # save the plots for visual verification
 #      #.......................................
@@ -1133,18 +1075,65 @@ plt_gt1r
 #                         y = vec_crop,
 #                         snap = "out")      # snap = "in" gives NA's
 #  
+#  pth_egm = file.path(dem_dir, 'copernicus_dem_egm2008.tif')
+#  terra::writeRaster(x = rst_crop, filename = pth_egm)
+#  
+#  rst_dem = terra::rast(pth_egm)
+#  rst_dem
+#  
+#  CRS_dem = terra::crs(rst_dem, proj = TRUE)
+#  RES_dem = as.character(terra::res(rst_dem))
+#  EXT_dem = as.vector(terra::ext(rst_dem))
+#  EXT_dem = c(EXT_dem['xmin'], EXT_dem['ymin'], EXT_dem['xmax'], EXT_dem['ymax'])
+#  EXT_dem = as.character(EXT_dem)
+#  
+#  #...........................................................................................................
+#  # The Copernicus DEM has a "horizontal" CRS (Coordinate Reference System) of WGS84-G1150 (EPSG 4326)
+#  # and a "vertical" CRS of EGM2008 (EPSG 3855) - geoid. Therefore, a transformation of the vertical
+#  # CRS is required to match the ellipsoid CRS of the ICESat-2 data
+#  # The Table 1 (page 10 of 37) of the following weblink includes more information:
+#  # https://spacedata.copernicus.eu/documents/20126/0/GEO1988-CopernicusDEM-SPE-002_ProductHandbook_I1.00.pdf
+#  # The 2.5 minute geoid grid .gtx file of EGM2008 was downloaded from the following "osgeo" url:
+#  # http://download.osgeo.org/proj/vdatum/egm08_25/
+#  #...........................................................................................................
+#  
+#  pth_gtx = file.path(dem_dir, 'egm08_25.gtx')
+#  
+#  download.file(url = 'http://download.osgeo.org/proj/vdatum/egm08_25/egm08_25.gtx',
+#                destfile = pth_gtx,
+#                method = 'curl')
+#  
+#  pth_dem_transformed = file.path(dem_dir, 'copernicus_dem_egm2008_transformed.tif')
+#  
+#  convrt = sf::gdal_utils(
+#    util = "warp",
+#    source = pth_egm,
+#    destination = pth_dem_transformed,
+#    options = c("-s_srs", glue::glue("{CRS_dem} +geoidgrids={pth_gtx}"),
+#                "-t_srs", CRS_dem,
+#                "-tr", RES_dem,
+#                "-te", EXT_dem),
+#    quiet = FALSE)
+#  
+#  #....................................
+#  # load the transformed Copernicus DEM
+#  #....................................
+#  
+#  rst_crop_transformed = terra::rast(x = pth_dem_transformed)
+#  
+#  
 #  #...............................................
 #  # we also have to find the closest elevation
 #  # value to the 'winter' and 'summer' coordinates
 #  # using the raster resolution
 #  #...............................................
 #  
-#  ter_dtbl = data.table::as.data.table(x = rst_crop, xy = TRUE, cells = TRUE)
+#  ter_dtbl = data.table::as.data.table(x = rst_crop_transformed, xy = TRUE, cells = TRUE)
 #  colnames(ter_dtbl) = c("cell", "lon_dem30", "lat_dem30", "dem30")
 #  # length(unique(ter_dtbl$cell)) == nrow(ter_dtbl)
 #  
 #  xy = as.matrix(sw_hq_merg_beams[, c('longitude', 'latitude')])
-#  sw_cells = terra::cellFromXY(object = rst_crop, xy = xy)
+#  sw_cells = terra::cellFromXY(object = rst_crop_transformed, xy = xy)
 #  
 #  sw_hq_merg_beams$cell = sw_cells
 #  # length(unique(sw_hq_merg_beams$cell)) < nrow(sw_hq_merg_beams)
@@ -1164,8 +1153,8 @@ plt_gt1r
 #  
 #  summary(merg_cells$dem_dif_dist)
 #  
-#   #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-#   # 0.2356  8.1619 11.5943 11.1490 14.3201 20.5394
+#  #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+#  # 0.2356  8.1619 11.5943 11.1490 14.3201 20.5394
 #  
 
 ## -----------------------------------------------------------------------------

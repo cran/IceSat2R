@@ -36,10 +36,7 @@ getTracks(
 either a data.table (if outputFormat is 'csv') or a nested list (if outputFormat is 'json')
 }
 \description{
-Get the ICESAT-2 Tracks
-}
-\details{
-Get a list of ICESat-2 tracks given a spatial bounding box selection
+Get a list of ICESat-2 tracks using a bounding box as input
 }
 \examples{
 
@@ -52,7 +49,7 @@ require(sf)
 sf::sf_use_s2(use_s2 = FALSE)
 
 #..........................................................
-# In case we are interested to find the IceSat-2 tracks for
+# In case we are interested to find the ICESat-2 tracks for
 #     - a specific area (or bounding box)
 #     - a specific time interval (close to September 2021)
 #..........................................................
@@ -61,12 +58,11 @@ sf::sf_use_s2(use_s2 = FALSE)
 # Ice sheet area
 #...............
 
-pth_bbx = system.file('data_files', 'ne_10m_glaciated_areas.RDS',
-                      package = "IceSat2R")
+data(ne_10m_glaciated_areas)
 
 ice_sheet = 'Kluane Ice Cap'
 
-ice_sheet_geom = readRDS(file = pth_bbx) \%>\%
+ice_sheet_geom = ne_10m_glaciated_areas \%>\%
   subset(!is.na(name)) \%>\%
   subset(name == ice_sheet)
 
@@ -117,10 +113,11 @@ df_inters = data.frame(res_inters)
 rgt_subs = res_rgt_many[df_inters$col.id, , drop = FALSE]
 
 
-#.......................................
+#.......................................................
 # Keep the Date and the bounding box to
 # verify with the 'getTracks()' function
-#.......................................
+# an alternative is to use the "verify_RGTs()" function
+#.......................................................
 
 for (item in 1:nrow(rgt_subs)) {
 

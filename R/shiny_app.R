@@ -81,7 +81,7 @@ leaflet_base_map = function(sf_obj = NULL,
 #' R6 Class to Select an Area of Interest (AOI) from a Global Grid
 #'
 #' @description
-#' The 'select_aoi_global_grid' class will be used to select an Area of Interest (AOI) from the global grid
+#' The 'select_aoi_global_grid' class allows the user to select an Area of Interest (AOI) (see the examples section for all available options)
 #'
 #' @importFrom leaflet.extras addDrawToolbar editToolbarOptions
 #' @importFrom sf st_as_sfc st_intersects sf_use_s2 st_bbox st_crs
@@ -156,10 +156,9 @@ leaflet_base_map = function(sf_obj = NULL,
 #' # 4th. Option: Use a bounding box as input  ('Greenland Ice Sheet')
 #' #.........................................
 #'
-#' pth_bbx = system.file('data_files', 'ne_10m_glaciated_areas.RDS',
-#'                       package = "IceSat2R")
+#' data(ne_10m_glaciated_areas)
 #'
-#' dat_bbx = readRDS(file = pth_bbx) %>%
+#' dat_bbx = ne_10m_glaciated_areas %>%
 #'   subset(!is.na(name)) %>%
 #'   subset(name == "Greenland Ice Sheet") %>%
 #'   sf::st_bbox(crs = 4326)
@@ -208,7 +207,7 @@ select_aoi_global_grid <- R6::R6Class("select_aoi_global_grid",
                                        verbose = FALSE,
 
                                        #' @description
-                                       #' Initialize method for the select_aoi_global_grid R6 class
+                                       #' Initialization method for the 'select_aoi_global_grid' R6 class
                                        #' @param area_of_interest either NULL (which allows the user to draw the area of interest on the map) or a character string (i.e. a 'country' or a 'continent') or a named bounding box vector (such as c(xmin = 16.1, xmax = 16.6, ymax = 48.6, ymin = 47.9)). The 'countries' and 'continents' can be extracted from the "rnaturalearth::ne_countries(scale = 110, type = 'countries', returnclass = 'sf')" function and specifically the columns: 'sovereignt' and 'continent'
                                        #' @param leaflet_provider_base a leaflet provider object
                                        #' @param leaflet_provider_secondary a leaflet provider object
@@ -243,7 +242,7 @@ select_aoi_global_grid <- R6::R6Class("select_aoi_global_grid",
 
 
                                        #' @description
-                                       #' Internal Shiny application to visualize the global grid
+                                       #' Internal Shiny application to visualize the selected area
                                        #'
                                        #' @param lft_map a leaflet map
                                        #'

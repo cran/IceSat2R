@@ -8,7 +8,7 @@
 # init <- select_aoi_global_grid$new()
 }
 \description{
-The 'select_aoi_global_grid' class will be used to select an Area of Interest (AOI) from the global grid
+The 'select_aoi_global_grid' class allows the user to select an Area of Interest (AOI) (see the examples section for all available options)
 }
 \examples{
 
@@ -71,10 +71,9 @@ sf_obj
 # 4th. Option: Use a bounding box as input  ('Greenland Ice Sheet')
 #.........................................
 
-pth_bbx = system.file('data_files', 'ne_10m_glaciated_areas.RDS',
-                      package = "IceSat2R")
+data(ne_10m_glaciated_areas)
 
-dat_bbx = readRDS(file = pth_bbx) \%>\%
+dat_bbx = ne_10m_glaciated_areas \%>\%
   subset(!is.na(name)) \%>\%
   subset(name == "Greenland Ice Sheet") \%>\%
   sf::st_bbox(crs = 4326)
@@ -139,7 +138,7 @@ https://github.com/r-spatial/mapedit/blob/master/experiments/gadget_draw2.R
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Initialize method for the select_aoi_global_grid R6 class
+Initialization method for the 'select_aoi_global_grid' R6 class
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{select_aoi_global_grid$new(
   area_of_interest = NULL,
@@ -173,7 +172,7 @@ Initialize method for the select_aoi_global_grid R6 class
 \if{html}{\out{<a id="method-draw_edit_internal"></a>}}
 \if{latex}{\out{\hypertarget{method-draw_edit_internal}{}}}
 \subsection{Method \code{draw_edit_internal()}}{
-Internal Shiny application to visualize the global grid
+Internal Shiny application to visualize the selected area
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{select_aoi_global_grid$draw_edit_internal(lft_map)}\if{html}{\out{</div>}}
 }

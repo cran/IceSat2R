@@ -2,6 +2,8 @@
 
 #' Get the ICESAT-2 Tracks
 #'
+#' Get a list of ICESat-2 tracks using a bounding box as input
+#'
 #' @param minx the 'minx' parameter of the bounding box
 #' @param maxx the 'maxx' parameter of the bounding box
 #' @param miny the 'miny' parameter of the bounding box
@@ -12,10 +14,6 @@
 #' @param verbose a boolean. If TRUE then information will be printed out in the console
 #'
 #' @return either a data.table (if outputFormat is 'csv') or a nested list (if outputFormat is 'json')
-#'
-#' @details
-#'
-#' Get a list of ICESat-2 tracks given a spatial bounding box selection
 #'
 #' @references
 #'
@@ -38,7 +36,7 @@
 #' sf::sf_use_s2(use_s2 = FALSE)
 #'
 #' #..........................................................
-#' # In case we are interested to find the IceSat-2 tracks for
+#' # In case we are interested to find the ICESat-2 tracks for
 #' #     - a specific area (or bounding box)
 #' #     - a specific time interval (close to September 2021)
 #' #..........................................................
@@ -47,12 +45,11 @@
 #' # Ice sheet area
 #' #...............
 #'
-#' pth_bbx = system.file('data_files', 'ne_10m_glaciated_areas.RDS',
-#'                       package = "IceSat2R")
+#' data(ne_10m_glaciated_areas)
 #'
 #' ice_sheet = 'Kluane Ice Cap'
 #'
-#' ice_sheet_geom = readRDS(file = pth_bbx) %>%
+#' ice_sheet_geom = ne_10m_glaciated_areas %>%
 #'   subset(!is.na(name)) %>%
 #'   subset(name == ice_sheet)
 #'
@@ -103,10 +100,11 @@
 #' rgt_subs = res_rgt_many[df_inters$col.id, , drop = FALSE]
 #'
 #'
-#' #.......................................
+#' #.......................................................
 #' # Keep the Date and the bounding box to
 #' # verify with the 'getTracks()' function
-#' #.......................................
+#' # an alternative is to use the "verify_RGTs()" function
+#' #.......................................................
 #'
 #' for (item in 1:nrow(rgt_subs)) {
 #'

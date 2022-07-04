@@ -37,6 +37,27 @@ The usage of the *IceSat2R* package requires a geospatial setup as specified in 
 
 <br>
 
+#### **How the IceSat2R package can be used?**
+
+<br>
+
+The *IceSat2R* package includes the code, documentation, and examples so that,
+
+* A user can select an area of interest (AOI) either programmatically or interactively
+* If the Reference Ground Track (RGT) is not known, the user has the option to utilize either
+  + one of the "overall_mission_orbits()" or "time_specific_orbits()" to compute the RGT(s) for a pre-specified global area or for a time period, or
+  + one of the "vsi_nominal_orbits_wkt()" or "vsi_time_specific_orbits_wkt()" to compute the RGT(s) for a specific AOI
+* Once the RGT is computed it can be verified with the "getTracks()" function of the OpenAltimetry Web API
+* Finally the user can utilize one of the "get_atlas_data()" or "get_level3a_data()" functions to retrieve the data for specific product(s), Date(s) and Beam(s)
+
+This work-flow is illustrated also in the following diagram,
+
+<br>
+
+<img src="man/figures/icesat_2_diagram.png" ></img>
+
+<br>
+
 ### Shiny application to select an area of interest (AOI) from a 1- or 5-degree global grid
 
 <br>
@@ -49,7 +70,7 @@ The [OpenAltimetry API](https://openaltimetry.org/data/swagger-ui/) restricts th
 
 <br>
 
-### **Example Use Case-1**: 3-Dimensional Line Plot by combining IceSat-2 and Copernicus DEM (Digital Elevation Model) Data
+### **Example Use Case-1**: 3-Dimensional Line Plot by combining ICESat-2 and Copernicus DEM (Digital Elevation Model) Data
 
 <br>
 
@@ -79,8 +100,8 @@ The user of the **IceSat2R** R package can reproduce the examples of the documen
 
 * up to [maximum 100 concurrent users](https://mybinder.readthedocs.io/en/latest/about/user-guidelines.html#maximum-concurrent-users-for-a-repository)
 * [1 CPU](https://discourse.jupyter.org/t/mybinder-and-multiprocessing/3238/2)
-* [1 to 2 GB of memory](https://mybinder.readthedocs.io/en/latest/about/about.html#how-much-memory-am-i-given-when-using-binder)
-* [up to six hours of session time per user session](https://mybinder.readthedocs.io/en/latest/about/about.html#how-long-will-my-binder-session-last), or up to one cpu-hour for more computationally intensive sessions
+* [1 to 2 GB of memory](https://mybinder.readthedocs.io/en/latest/about/user-guidelines.html#how-much-memory-am-i-given-when-using-binder)
+* [up to six hours of session time per user session](https://mybinder.readthedocs.io/en/latest/about/user-guidelines.html#how-long-will-my-binder-session-last), or up to one cpu-hour for more computationally intensive sessions
 
 <br>
 
@@ -109,19 +130,6 @@ The user can also **bind** a home directory / folder to the image to use its fil
 ```R
 
 docker run -d --name rstudio_dev -e USER=rstudio -e PASSWORD=give_here_your_password --rm -p 8787:8787 -v /home/YOUR_DIR:/home/rstudio/YOUR_DIR mlampros/icesat2r:rstudiodev
-
-
-```
-
-<br>
-
-In the latter case you might have first give permission privileges for write access to **YOUR_DIR** directory (not necessarily) using,
-
-<br>
-
-```R
-
-chmod -R 777 /home/YOUR_DIR
 
 
 ```
@@ -162,6 +170,10 @@ to access the Rstudio console in order to give your username and password.
 
 <br>
 
+### Installation:
+
+<br>
+
 To install the package from CRAN use, 
 
 ```R
@@ -179,6 +191,105 @@ remotes::install_github('mlampros/IceSat2R')
 
 <br>
 
+### R package tests:
+
+<br>
+
+To execute the package tests (all or a specific file) use the following code snippet:
+
+```R
+
+# first download the latest version of the package
+
+url_pkg = 'https://github.com/mlampros/IceSat2R/archive/refs/heads/master.zip'
+temp_pkg_file = tempfile(fileext = '.zip')
+print(temp_pkg_file)
+
+download.file(url = url_pkg, destfile = temp_pkg_file, quiet = TRUE)
+
+dir_pkg_save = dirname(temp_pkg_file)
+utils::unzip(zipfile = temp_pkg_file, exdir = dir_pkg_save, junkpaths = FALSE)
+
+# build and install the latest version of the package
+
+require(glue)
+
+setwd(dir_pkg_save)
+system('R CMD build --compact-vignettes="gs+qpdf" --resave-data IceSat2R-master')
+gz_file = which(gregexpr(pattern = "^IceSat2R+_+[0-9]+.+[0-9]+.+[0-9]+.tar.gz", text = list.files()) != -1)
+system(glue::glue("R CMD INSTALL {list.files()[gz_file]}"))
+
+# load the package
+
+require(IceSat2R)
+
+# run all tests
+
+testthat::test_local(path = file.path(dirname(temp_pkg_file), 'IceSat2R-master'),
+                     reporter = testthat::default_reporter())
+
+# run a specific test file from the 'testthat' directory of the package 
+# https://github.com/mlampros/IceSat2R/tree/master/tests/testthat
+
+test_specific_file = file.path(dirname(temp_pkg_file), 
+                               'IceSat2R-master', 
+                               'tests', 
+                               'testthat', 
+                               'test-mission_orbits.R')
+
+Sys.setenv(NOT_CRAN = "true")       # run all tests (including the ones skipped on CRAN)
+testthat::test_file(path = test_specific_file, reporter = testthat::default_reporter())
+Sys.unsetenv("NOT_CRAN")            # unset the previously modified environment variable
+
+```
+
+The previous code snippet allows a user to test if the package works as expected in any Operating System.
+
+<br>
+
+### The Beam Pattern
+
+<br>
+
+The ATLAS beam pattern on the ground changes depending on the orientation of the ICESat-2 observatory. The pattern on top (of the following Figure) corresponds to traveling in the forward (+x) orientation, while the pattern on the bottom corresponds to traveling in the backward (-x) orientation. The numbers indicate the corresponding ATLAS beam, while the L/R mapping are used on the ATL03 and higher-level data products. The two strong beams with the TEP are ATLAS beams 1 and 3 (Fig.8, Neumann et al., 2019, https://doi.org/10.1016/j.rse.2019.111325)
+
+<br>
+
+<img src="man/figures/ATLAS_beam_pattern.jpg" ></img>
+
+<br>
+
+Using a table to map the **strong** and **weak** beams (Reference: [sliderule-python documentation](http://icesat2sliderule.org/rtd/user_guide/Background.html#icesat-2))
+
+<br>
+
+<center> <h1>ATLAS oriented forward (+x)</h1> </center>
+
+| ATLAS Spot Number      | Ground track Designation     | Beam Strength      |
+|:----------------------:|:----------------------------:|:------------------:|
+| 1                      | gt3r                         | Strong             |
+| 2                      | gt3l                         | Weak               |
+| 3                      | gt2r                         | Strong             |
+| 4                      | gt2l                         | Weak               |
+| 5                      | gt1r                         | Strong             |
+| 6                      | gt1l                         | Weak               |
+
+<br>
+
+<center> <h1>ATLAS oriented backwards (-x)</h1> </center>
+
+| ATLAS Spot Number      | Ground track Designation     | Beam Strength      |
+|:----------------------:|:----------------------------:|:------------------:|
+| 1                      | gt3r                         | Weak               |
+| 2                      | gt3l                         | Strong             |
+| 3                      | gt2r                         | Weak               |
+| 4                      | gt2l                         | Strong             |
+| 5                      | gt1r                         | Weak               |
+| 6                      | gt1l                         | Strong             |
+
+<br>
+
+
 ### Citation:
 
 <br>
@@ -192,7 +303,7 @@ If you use the code of this repository in your paper or research please cite bot
   title = {{IceSat2R}: ICESat-2 Altimeter Data using R},
   author = {Lampros Mouselimis},
   year = {2022},
-  note = {R package version 1.0.1},
+  note = {R package version 1.0.2},
   url = {https://CRAN.R-project.org/package=IceSat2R},
 }
 ```
@@ -208,7 +319,7 @@ If you use the code of this repository in your paper or research please cite bot
 
 This project received financial [support](https://www.r-consortium.org/projects) from the
 
-<a href="https://www.r-consortium.org/projects/awarded-projects">
+<a href="https://www.r-consortium.org/all-projects/awarded-projects">
 <img src="https://www.r-consortium.org/wp-content/uploads/sites/13/2016/09/RConsortium_Horizontal_Pantone.png" width="300">
 </a>
 

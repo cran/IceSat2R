@@ -2,7 +2,7 @@
 % Please edit documentation in R/mission_orbits.R
 \name{vsi_nominal_orbits_wkt}
 \alias{vsi_nominal_orbits_wkt}
-\title{Utilizing Virtual File Systems (vsi) and Well Known Text (WKT) to access nominal orbits}
+\title{Utilizing Virtual File Systems (vsi) and Well Known Text (WKT) to access the 'nominal orbits'}
 \usage{
 vsi_nominal_orbits_wkt(
   orbit_area,
@@ -21,7 +21,7 @@ vsi_nominal_orbits_wkt(
 
 \item{rgt_repeat}{an integer specifying the orbit repeat. This parameter defaults to 1 and it is relevant if a user chooses one of the 'western_hemisphere' or 'eastern_hemisphere' where there are 8 orbit repeats, whereas for the 'antarctic' and 'arctic' there is only 1 repeat}
 
-\item{wkt_filter}{either NULL, or a Well Known Text (WKT) character string to allow a user to restrict to an area of interest rather than processing all data}
+\item{wkt_filter}{either NULL, or a Well Known Text (WKT) character string to allow a user to restrict to an area of interest rather than processing all data (this parameter will be used as input to the 'sf::st_read()' function)}
 
 \item{download_method}{a character string specifying the download method. Corresponds to the 'method' parameter of the 'utils::download.file()' function. Can be one of 'internal', 'wininet' (Windows only), 'libcurl', 'wget', 'curl' or 'auto'}
 
@@ -33,7 +33,7 @@ vsi_nominal_orbits_wkt(
 an 'sf' object
 }
 \description{
-Utilizing Virtual File Systems (vsi) and Well Known Text (WKT) to access nominal orbits
+Utilizing Virtual File Systems (vsi) and Well Known Text (WKT) to access the 'nominal orbits'
 }
 \examples{
 
