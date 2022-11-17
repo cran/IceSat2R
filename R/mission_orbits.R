@@ -994,15 +994,17 @@ vsi_kml_from_zip = function(icesat_rgt_url,
     utils::download.file(url = icesat_rgt_url, destfile = tmp_url_file, method = download_method, quiet = !verbose)
     info_url = utils::unzip(zipfile = tmp_url_file, list = TRUE, junkpaths = T)
     info_url = info_url$Name
-    if (length(info_url) == 0) stop(glue::glue("The 'unzip -l' command didn't returned the required .kml url paths for the input url: {url_pth}!"), call. = F)
+    if (length(info_url) == 0) stop(glue::glue("The 'unzip -l' command didn't returned the required .kml url paths for the input url: {icesat_rgt_url}!"), call. = F)
   }
   else {
 
     info_url = sf::gdal_utils(util = 'info',
                               source = url_pth,
                               quiet = T)
-    if (info_url == "") {
-      if (verbose) message("The 'sf' gdalinfo returned an empty character string! Attempt to read the url using the OS configured 'gdalinfo' function ...")
+
+    if (any(c(info_url == "", length(info_url) == 0))) {
+
+      warning("The 'sf' gdalinfo returned an empty character string (or vector)! Attempt to read the url using the OS configured 'gdalinfo' function!  (As an alternative you can set the parameter 'download_zip' to TRUE and re-run the function)")
 
       info_url = suppressWarnings(tryCatch(system2(command = 'gdalinfo', args = url_pth, stdout = TRUE, stderr = FALSE), error = function(e) e))
 
@@ -1219,9 +1221,16 @@ vsi_nominal_orbits_wkt = function(orbit_area,
 #' @param date_to a character string specifying the 'end' date in the format 'yyyy-MM-dd' (such as '2020-01-01')
 #' @param RGTs a character vector (consisting of one or more) Reference Ground Track (RGT). See the Examples section on how to come to these RGTs based on the "vsi_nominal_orbits_wkt()" function
 #' @param wkt_filter either NULL, or a Well Known Text (WKT) character string to allow a user to restrict to an area of interest rather than processing all data. It is possible that the WKT won't intersect with any of the available time specific orbits due to the sparsity of the coordinates (the output in that case will be an empty list)
+#' @param download_zip a boolean. If TRUE the .zip file will be first downloaded and then the .kml files will be returned, otherwise the 'gdalinfo' function will be used as input to the R 'system2()' function to read the .kml files without downloading the .zip file. The 'gdalinfo' command requires that the user has configured GDAL properly. Set the parameter 'download_zip' to TRUE if GDAL is not (properly) installed.
 #' @param verbose a boolean. If TRUE then information will be printed out in the console
 #'
 #' @return a list of 'sf' objects where each sublist will represent a different RGT cycle
+#'
+#' @details
+#'
+#' In case that this function does not return any results (empty list object) for a specified 'wkt_filter' parameter, then use a bigger Well Known Text (WKT) area. This is required because the 'time specific orbits' (points) are quite sparse.
+#'
+#' Moreover, set the parameter 'download_zip' to TRUE if the 'gdalinfo' function returns internally an empty character string. In that case also a warning will be shown in the R session.
 #'
 #' @references
 #'
@@ -1312,6 +1321,7 @@ vsi_time_specific_orbits_wkt = function(date_from,
                                         date_to,
                                         RGTs,
                                         wkt_filter = NULL,
+                                        download_zip = FALSE,
                                         verbose = FALSE) {
   if (verbose) t_start = proc.time()
 
@@ -1356,13 +1366,13 @@ vsi_time_specific_orbits_wkt = function(date_from,
 
       iter_url = zip_subs[item_cy]
       zip_dat = vsi_kml_from_zip(icesat_rgt_url = iter_url,
-                                 download_zip = FALSE,
+                                 download_zip = download_zip,
                                  download_method = 'curl',
                                  verbose = verbose)
       if (nrow(zip_dat) > 0) {
 
         greg_expr = as.character(glue::glue("IS2_RGT_{RGTs}"))
-        rows_inters = as.vector(sapply(greg_expr, function(x) which(gregexpr(pattern = x, text = zip_dat$file) != -1)))
+        rows_inters = as.vector(unlist(sapply(greg_expr, function(x) which(gregexpr(pattern = x, text = zip_dat$file) != -1))))
         if (length(rows_inters)) {
           zip_dat_subs = zip_dat[rows_inters, , drop = F]
           NROW = nrow(zip_dat_subs)
@@ -1385,6 +1395,7 @@ vsi_time_specific_orbits_wkt = function(date_from,
               wkt_inp = character(0)
               if (!is.null(wkt_filter)) wkt_inp = wkt_filter
               lr_dat = sf::st_read(dsn = zip_dat_subs$file[idx_row], wkt_filter = wkt_inp, layer = LAYER, quiet = TRUE)
+              # lr_dat = sf::st_read(dsn = zip_dat_subs$file[idx_row], layer = LAYER, quiet = TRUE)                           # keep this line for debugging in case that the 'wkt_filter' does not work
               lr_dat
             })
 
