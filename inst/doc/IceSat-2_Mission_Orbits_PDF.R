@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(fig.width = 4,
                       fig.height = 4, 
                       fig.align = "center",
@@ -80,7 +80,7 @@ df_tbl = df_tbl[order(df_tbl$Num_IceSat2_points, decreasing = T), ]
 DT_dtbl = DT::datatable(df_tbl, rownames = FALSE)
 
 
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 
 DT_dtbl
 
@@ -100,7 +100,7 @@ row.names(dtbl_land_sea) = c('sea', 'land')
 
 
 
-## ---- results = 'asis'--------------------------------------------------------
+## ----results = 'asis'---------------------------------------------------------
 
 stargazer::stargazer(dtbl_land_sea, 
                      summary = FALSE, 
@@ -161,7 +161,7 @@ sum_stats_glac = data.table::rbindlist(sum_stats_glac)
 sum_stats_glac = sum_stats_glac[order(sum_stats_glac$Num_unique_RGTs, decreasing = T), ]
 
 
-## ---- results = 'asis'--------------------------------------------------------
+## ----results = 'asis'---------------------------------------------------------
 
 stargazer::stargazer(sum_stats_glac, 
                      summary = FALSE, 
@@ -178,7 +178,7 @@ sample_glacier = 'Southern Patagonian Ice Field'
 dat_glac_smpl = dat_glac_name[[sample_glacier]]
 
 
-## ---- results = 'asis'--------------------------------------------------------
+## ----results = 'asis'---------------------------------------------------------
 
 cols_display = c('name', 'day_of_year', 'Date', 'hour', 'minute', 'second', 'RGT')
 

@@ -255,7 +255,12 @@ overall_mission_orbits = function(orbit_area,
 
   tmp_orbit_file = tempfile(fileext = '.zip')
   if (verbose) cat(glue::glue("The orbits of '{orbit_area}' will be downloaded (temporarily) in the '{tmp_orbit_file}' file ..."), '\n')
-  utils::download.file(url = orbits[[orbit_area]], destfile = tmp_orbit_file, method = download_method, quiet = !verbose)
+  
+  downl_u = download_file(url = orbits[[orbit_area]],
+                          destfile = tmp_orbit_file,
+                          download_method = download_method,
+                          verbose = verbose)
+  
   tmp_orbits_dir = file.path(tempdir(), glue::glue('orbits_{orbit_area}'))                                # create a second directory inside the temporary directory to extract the .zip file
   if (!dir.exists(tmp_orbits_dir)) dir.create(tmp_orbits_dir)
 
@@ -697,7 +702,12 @@ time_specific_orbits = function(date_from = NULL,
     URL_zip = orbit_files[[CYCLE]]
 
     tmp_orbit_file = tempfile(fileext = '.zip')
-    utils::download.file(url = URL_zip, destfile = tmp_orbit_file, method = download_method, quiet = !verbose)
+
+    downl_u = download_file(url = URL_zip,
+                            destfile = tmp_orbit_file,
+                            download_method = download_method,
+                            verbose = verbose)
+    
     tmp_orbits_dir = file.path(tempdir(), CYCLE)                                                  # create a second directory inside the temporary directory to extract the .zip file
     if (!dir.exists(tmp_orbits_dir)) dir.create(tmp_orbits_dir)
 
@@ -991,7 +1001,12 @@ vsi_kml_from_zip = function(icesat_rgt_url,
     tmp_url_file = tempfile(fileext = as.character(glue::glue('.{EXT_url}')))
 
     if (verbose) cat(glue::glue("The '{icesat_rgt_url}' file will be downloaded (temporarily) in the '{tmp_url_file}' file ..."), '\n')
-    utils::download.file(url = icesat_rgt_url, destfile = tmp_url_file, method = download_method, quiet = !verbose)
+    
+    downl_u = download_file(url = icesat_rgt_url,
+                            destfile = tmp_url_file,
+                            download_method = download_method,
+                            verbose = verbose)
+
     info_url = utils::unzip(zipfile = tmp_url_file, list = TRUE, junkpaths = T)
     info_url = info_url$Name
     if (length(info_url) == 0) stop(glue::glue("The 'unzip -l' command didn't returned the required .kml url paths for the input url: {icesat_rgt_url}!"), call. = F)
@@ -1134,8 +1149,8 @@ vsi_kml_from_zip = function(icesat_rgt_url,
 #' AOI_wkt = mapview::mapview(wkt_sf, legend = F)
 #'
 #' lft = RGTs + AOI_wkt
-#' lft@map %>% leaflet::setView(lng = centr_wkt[, 'X'],
-#'                              lat = centr_wkt[, 'Y'],
+#' lft@map %>% leaflet::setView(lng = as.numeric(centr_wkt[, 'X']),
+#'                              lat = as.numeric(centr_wkt[, 'Y']),
 #'                              zoom = 7)
 #' }
 
@@ -1395,7 +1410,7 @@ vsi_time_specific_orbits_wkt = function(date_from,
               wkt_inp = character(0)
               if (!is.null(wkt_filter)) wkt_inp = wkt_filter
               lr_dat = sf::st_read(dsn = zip_dat_subs$file[idx_row], wkt_filter = wkt_inp, layer = LAYER, quiet = TRUE)
-              # lr_dat = sf::st_read(dsn = zip_dat_subs$file[idx_row], layer = LAYER, quiet = TRUE)                           # keep this line for debugging in case that the 'wkt_filter' does not work
+              # lr_dat = sf::st_read(dsn = zip_dat_subs$file[idx_row], layer = LAYER, quiet = TRUE)                           # keep this line for debugging in case the 'wkt_filter' does not work
               lr_dat
             })
 
@@ -1403,7 +1418,29 @@ vsi_time_specific_orbits_wkt = function(date_from,
             idx_relev = which(n_rows > 0)
 
             if (length(idx_relev) > 0) {
+              
               dat_all = dat_all[idx_relev]
+
+              # I expect each sublist to be of type "sfc_POINT" and normally observations which are not (and can be for instance "sfc_LINESTRING") won't have a description column either. Therefore use the next line for removal
+              descr_not_idx = which(as.vector(unlist(lapply(dat_all, function(x) {
+                colnams = colnames(x)
+                if ('description' %in% colnams) {
+                  verify_descr = (is.na(x$description) | x$description == "")
+                }
+                else if ('Description' %in% colnams) {
+                  verify_descr = (is.na(x$Description) | x$Description == "")      # In Macintosh (osx) the "description" column appears with an upper case "D" as "Description", see the following issue: https://github.com/mlampros/IceSat2R/issues/9#issuecomment-1152020607
+                }
+                else {
+                  stop("The 'D(d)escription' column must exist in every sublist!", call. = F)
+                }
+                verify_descr
+              }))))
+              
+              LEN_exc = length(descr_not_idx)
+              if (LEN_exc > 0) {
+                if (verbose) message(glue::glue("{LEN_exc} output sublist did not have a valid 'description' and will be removed!"))
+                dat_all = dat_all[-descr_not_idx]
+              }
 
               dat_all = data.table::rbindlist(dat_all)
 

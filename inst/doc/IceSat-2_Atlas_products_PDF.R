@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 
 knitr::opts_chunk$set(warning = FALSE, 
                       message = FALSE,
@@ -7,7 +7,7 @@ knitr::opts_chunk$set(warning = FALSE,
                       eval = FALSE)          # this vignette by default does not evaluate the code snippets 
 
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 
 pkgs = c('IceSat2R', 'sf', 'mapview', 'data.table', 'stargazer', 'glue', 'utils',
          'reshape2', 'plotly', 'magrittr', 'geodist', 'CopernicusDEM', 'terra')
@@ -357,7 +357,7 @@ mapview::mapviewOptions(leafletHeight = '600px',
 #  # 230: 1382  2020-12-23  2021-06-23
 #  
 
-## ---- echo = F----------------------------------------------------------------
+## ----echo = F-----------------------------------------------------------------
 #  
 #  #.........................................................................................
 #  # For reproducibility purposes save only the 'date' and 'RGT' matches of winter and summer
@@ -458,7 +458,7 @@ mapview::mapviewOptions(leafletHeight = '600px',
 #  # POLYGON ((-21.60888 73.61961, -17.10888 73.6196...
 #  
 
-## ---- eval = T, echo = FALSE--------------------------------------------------
+## ----eval = T, echo = FALSE---------------------------------------------------
 
 subs_join_s = readRDS(file = system.file('data_files', 'vignette_data', 'Greenland_grid_cells.RDS', package = "IceSat2R"))
 
@@ -469,12 +469,12 @@ subs_join_s = readRDS(file = system.file('data_files', 'vignette_data', 'Greenla
 #  # [1] TRUE
 #  
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 
 mapview::mapview(subs_join_s, legend = F)
 
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 
 join_geoms = 1:5
 subs_join_reduced = subs_join_s[join_geoms]
@@ -482,7 +482,7 @@ subs_join_reduced = subs_join_s[join_geoms]
 mapview::mapview(subs_join_reduced, legend = F)
 
 
-## ---- eval = T, echo = F, results = 'asis'------------------------------------
+## ----eval = T, echo = F, results = 'asis'-------------------------------------
 
 pth_subs_RGTs = system.file('data_files', 'vignette_data', 'Greenland_RGTs_grid_cells.csv', package = "IceSat2R")
 dtbl_RGTs = data.table::fread(pth_subs_RGTs, header = T, stringsAsFactors = F)
@@ -623,13 +623,13 @@ stargazer::stargazer(dtbl_RGTs,
 #  logs_out_dtbl$index = names(dat_out_w)
 #  
 
-## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+## ----eval = TRUE, echo = FALSE------------------------------------------------
 
 pth_logs = system.file('data_files', 'vignette_data', 'LOGs.csv', package = "IceSat2R")
 logs_out_dtbl = data.table::fread(file = pth_logs, stringsAsFactors = F, header = T)
 
 
-## ---- eval = TRUE, results = 'asis'-------------------------------------------
+## ----eval = TRUE, results = 'asis'--------------------------------------------
 
 logs_out_dtbl = logs_out_dtbl[order(logs_out_dtbl$N_rows_winter, decreasing = T), ]
 
@@ -730,12 +730,12 @@ stargazer::stargazer(logs_out_dtbl,
 #  cols_viz = c('segment_id_winter', 'beam_winter', 'h_li_winter', 'h_li_summer')
 #  ws_vis = sw_hq_merg[, ..cols_viz]
 
-## ---- eval = TRUE, echo = FALSE-----------------------------------------------
+## ----eval = TRUE, echo = FALSE------------------------------------------------
 
 ws_vis = readRDS(file = system.file('data_files', 'vignette_data', 'plotly_beams.RDS', package = "IceSat2R"))
 
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 
 ws_vis_mlt = reshape2::melt(ws_vis, id.vars = c('segment_id_winter', 'beam_winter'))
 ws_vis_mlt = data.table::data.table(ws_vis_mlt, stringsAsFactors = F)
@@ -743,7 +743,7 @@ ws_vis_mlt_spl = split(ws_vis_mlt, by = 'beam_winter')
 # BEAMS = names(ws_vis_mlt_spl)       # plot all beams
 
 
-## ---- eval = T----------------------------------------------------------------
+## ----eval = T-----------------------------------------------------------------
 
 #...................................
 # function to plot each subplot beam
@@ -812,7 +812,7 @@ plotly_beams = function(spl_data,
 }
 
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 
 plt_gt1l = plotly_beams(spl_data = ws_vis_mlt_spl, 
                         beam = "gt1l",
@@ -824,7 +824,7 @@ plt_gt1l = plotly_beams(spl_data = ws_vis_mlt_spl,
 plt_gt1l
 
 
-## ---- eval = TRUE-------------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 
 plt_gt1r = plotly_beams(spl_data = ws_vis_mlt_spl, 
                         beam = "gt1r",
@@ -835,7 +835,7 @@ plt_gt1r = plotly_beams(spl_data = ws_vis_mlt_spl,
 plt_gt1r
 
 
-## ---- echo = F----------------------------------------------------------------
+## ----echo = F-----------------------------------------------------------------
 #  
 #  #......................................................
 #  # save all images for all beams in a separate directory
@@ -1163,12 +1163,12 @@ plt_gt1r
 #  merg_cells_viz = merg_cells[, ..cols_viz_dem]
 #  
 
-## ---- echo = FALSE, eval = FALSE----------------------------------------------
+## ----echo = FALSE, eval = FALSE-----------------------------------------------
 #  
 #  merg_cells_viz = readRDS(file = system.file('data_files', 'vignette_data', '3d_plot.RDS', package = "IceSat2R"))
 #  
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  
 #  merg_cells_viz_mlt = reshape2::melt(merg_cells_viz, id.vars = c('beam', 'longitude', 'latitude'))
 #  merg_cells_viz_mlt = data.table::data.table(merg_cells_viz_mlt, stringsAsFactors = F)

@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(fig.width = 4,
                       fig.height = 6, 
                       fig.align = "center",
@@ -92,8 +92,14 @@ knitr::include_graphics("himalayas_aoi.png")
 ## ----reference-plt-1, echo = F------------------------------------------------
 #  #......................................................... mapview visualization
 #  
-#  centr_wkt = sf::st_coordinates(sf::st_centroid(sf_wkt))
+#  # make the sf-objects valid
+#  nams = names(lst_out)
+#  lst_out = lapply(lst_out, function(x) sf::st_make_valid(x))
+#  names(lst_out) <- nams
 #  
+#  sf_wkt = sf::st_make_valid(sf_wkt)
+#  
+#  # Plot the two sf-objects
 #  RGTs = mapview::mapview(lst_out, legend = F)
 #  AOI_wkt = mapview::mapview(sf_wkt, legend = F)
 #  
@@ -101,9 +107,10 @@ knitr::include_graphics("himalayas_aoi.png")
 #  
 #  require(magrittr)
 #  
-#  lft@map %>% leaflet::setView(lng = centr_wkt[, 'X'],
-#                               lat = centr_wkt[, 'Y'],
-#                               zoom = 7)
+#  lft = lft@map %>% leaflet::setView(lng = as.numeric(centr_wkt[, 'X']),
+#                                     lat = as.numeric(centr_wkt[, 'Y']),
+#                                     zoom = 7)
+#  lft
 #  #.......................................................
 #  
 
@@ -198,14 +205,20 @@ knitr::include_graphics("himalayas_aoi.png")
 
 ## -----------------------------------------------------------------------------
 #  
+#  # make the sf-objects valid
+#  orb_cyc_multi = sf::st_make_valid(orb_cyc_multi)
+#  sf_wkt = sf::st_make_valid(sf_wkt)
+#  
+#  # plot the sf-objects
 #  orbit_cy = mapview::mapview(orb_cyc_multi, legend = F)
 #  AOI_wkt = mapview::mapview(sf_wkt, legend = F)
 #  
 #  lft = orbit_cy + AOI_wkt
 #  
-#  lft@map %>% leaflet::setView(lng = centr_wkt[, 'X'],
-#                               lat = centr_wkt[, 'Y'],
-#                               zoom = 7)
+#  lft = lft@map %>% leaflet::setView(lng = as.numeric(centr_wkt[, 'X']),
+#                                     lat = as.numeric(centr_wkt[, 'Y']),
+#                                     zoom = 7)
+#  lft
 #  
 
 ## ----himalayas-rgts, fig.pos='h', out.width = "80%", out.height = "80%", fig.align = 'center', fig.cap = "Intersected RGTs", fig.alt="Intersected Reference Ground Tracks", echo = F, eval = T----

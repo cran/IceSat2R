@@ -1,11 +1,12 @@
 
 <img align="right" width="200" src="man/figures/hex_sticker.png"></img>
 
+
 ## IceSat2R
 
 <br>
 
-Programmatic connection to the [OpenAltimetry API](https://openaltimetry.org/data/swagger-ui/) to download and process the following *ICESat-2 Altimeter Data*,
+Programmatic connection to the [OpenAltimetry EARTHDATA API](https://openaltimetry.earthdatacloud.nasa.gov/data/) to download and process the following *ICESat-2 Altimeter Data*,
 
 * *'ATL03'* (Global Geolocated Photon Data)
 * *'ATL06'* (Land Ice Height)
@@ -47,7 +48,7 @@ The *IceSat2R* package includes the code, documentation, and examples so that,
 * If the Reference Ground Track (RGT) is not known, the user has the option to utilize either
   + one of the "overall_mission_orbits()" or "time_specific_orbits()" to compute the RGT(s) for a pre-specified global area or for a time period, or
   + one of the "vsi_nominal_orbits_wkt()" or "vsi_time_specific_orbits_wkt()" to compute the RGT(s) for a specific AOI
-* Once the RGT is computed it can be verified with the "getTracks()" function of the OpenAltimetry Web API
+* Once the RGT is computed it can be verified with the "getTracks()" function of the OpenAltimetry EARTHDATA Web API
 * Finally the user can utilize one of the "get_atlas_data()" or "get_level3a_data()" functions to retrieve the data for specific product(s), Date(s) and Beam(s)
 
 This work-flow is illustrated also in the following diagram,
@@ -62,7 +63,7 @@ This work-flow is illustrated also in the following diagram,
 
 <br>
 
-The [OpenAltimetry API](https://openaltimetry.org/data/swagger-ui/) restricts the requests to a *1x1* or *5x5* degree spatial bounding box, unless the *"sampling"* parameter is set to *TRUE*. The shiny application of the *IceSat2R* package allows the user to create a spatial grid of an AOI, preferably a 1- or 5-degree grid so that the selection can be within limits. An alternative would be to create a grid of smaller grid cells than required (for instance a 4-degree grid) and then to select multiple grid cells,
+The [OpenAltimetry EARTHDATA API](https://openaltimetry.earthdatacloud.nasa.gov/data/) restricts the requests to a *1x1* or *5x5* degree spatial bounding box, unless the *"sampling"* parameter is set to *TRUE*. The shiny application of the *IceSat2R* package allows the user to create a spatial grid of an AOI, preferably a 1- or 5-degree grid so that the selection can be within limits. An alternative would be to create a grid of smaller grid cells than required (for instance a 4-degree grid) and then to select multiple grid cells,
 
 <br>
 
@@ -205,7 +206,11 @@ url_pkg = 'https://github.com/mlampros/IceSat2R/archive/refs/heads/master.zip'
 temp_pkg_file = tempfile(fileext = '.zip')
 print(temp_pkg_file)
 
-download.file(url = url_pkg, destfile = temp_pkg_file, quiet = TRUE)
+options(timeout = 600)
+downl_f = IceSat2R::download_file(url = url_pkg,
+                                  destfile = temp_pkg_file,
+                                  download_method = 'curl',
+                                  verbose = TRUE)
 
 dir_pkg_save = dirname(temp_pkg_file)
 utils::unzip(zipfile = temp_pkg_file, exdir = dir_pkg_save, junkpaths = FALSE)
@@ -259,7 +264,7 @@ The ATLAS beam pattern on the ground changes depending on the orientation of the
 
 <br>
 
-Using a table to map the **strong** and **weak** beams (Reference: [sliderule-python documentation](http://icesat2sliderule.org/rtd/user_guide/Background.html#icesat-2))
+Using a table to map the **strong** and **weak** beams (Reference: [sliderule-python documentation](https://slideruleearth.io/web/rtd/user_guide/Background.html#background))
 
 <br>
 
@@ -302,8 +307,8 @@ If you use the code of this repository in your paper or research please cite bot
 @Manual{,
   title = {{IceSat2R}: ICESat-2 Altimeter Data using R},
   author = {Lampros Mouselimis},
-  year = {2022},
-  note = {R package version 1.0.4},
+  year = {2024},
+  note = {R package version 1.0.5},
   url = {https://CRAN.R-project.org/package=IceSat2R},
 }
 ```
