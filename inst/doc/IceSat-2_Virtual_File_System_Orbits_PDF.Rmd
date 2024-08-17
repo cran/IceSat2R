@@ -18,7 +18,7 @@ knitr::opts_chunk$set(fig.width = 4,
                       warning = FALSE, 
                       message = FALSE,
                       echo = TRUE,
-                      eval = FALSE)
+                      eval = TRUE)
 ```
 
 <br>
@@ -29,7 +29,7 @@ The area of interest is the **Himalayas mountain range** which has some of the *
 
 <br>
 
-```{r himalayas-aoi, fig.pos='h', out.width = "105%", out.height = "100%", fig.align = 'center', fig.cap = "Area of Interest", fig.alt="Display the area of interest in Himalayas", echo = F, eval = T}
+```{r himalayas-aoi, fig.pos='h', out.width = "105%", out.height = "100%", fig.align = 'center', fig.cap = "Area of Interest", fig.alt="Display the area of interest in Himalayas", echo = F}
 
 knitr::include_graphics("himalayas_aoi.png")
 
@@ -46,7 +46,7 @@ First, we load the data,
 
 <br>
 
-```{r}
+```r
 
 pkgs = c('IceSat2R', 'magrittr', 'sf', 'mapview', 'leaflet')
 load_pkgs = lapply(pkgs, require, character.only = TRUE)  # load required R packages
@@ -72,7 +72,7 @@ Since the *Himalayas mountain range* is located in the *Eastern Hemisphere* we'l
 
 <br>
 
-```{r}
+```r
 
 sf_wkt = sf::st_geometry(subset(geoms_himal, area_size == 'big'))
 
@@ -118,7 +118,7 @@ for (iter in 1:8) {         # iterate over all available repeats
 
 <br>
 
-```{r}
+```r
 
 lst_out = unlist(lst_out, recursive = F)
 unq_rgts = as.vector(unique(unlist(lapply(lst_out, function(x) x$RGT))))
@@ -132,28 +132,28 @@ unq_rgts
 <br>
 
 ```{r reference-plt-1, echo = F}
-#......................................................... mapview visualization
-
-# make the sf-objects valid
-nams = names(lst_out)
-lst_out = lapply(lst_out, function(x) sf::st_make_valid(x))
-names(lst_out) <- nams
-
-sf_wkt = sf::st_make_valid(sf_wkt)
-
-# Plot the two sf-objects
-RGTs = mapview::mapview(lst_out, legend = F)
-AOI_wkt = mapview::mapview(sf_wkt, legend = F)
-
-lft = RGTs + AOI_wkt
-
-require(magrittr)
-
-lft = lft@map %>% leaflet::setView(lng = as.numeric(centr_wkt[, 'X']),
-                                   lat = as.numeric(centr_wkt[, 'Y']),
-                                   zoom = 7)
-lft
-#.......................................................
+# #......................................................... mapview visualization
+# 
+# # make the sf-objects valid
+# nams = names(lst_out)
+# lst_out = lapply(lst_out, function(x) sf::st_make_valid(x))
+# names(lst_out) <- nams
+# 
+# sf_wkt = sf::st_make_valid(sf_wkt)
+# 
+# # Plot the two sf-objects
+# RGTs = mapview::mapview(lst_out, legend = F)
+# AOI_wkt = mapview::mapview(sf_wkt, legend = F)
+# 
+# lft = RGTs + AOI_wkt
+# 
+# require(magrittr)
+# 
+# lft = lft@map %>% leaflet::setView(lng = as.numeric(centr_wkt[, 'X']),
+#                                    lat = as.numeric(centr_wkt[, 'Y']),
+#                                    zoom = 7)
+# lft
+# #.......................................................
 
 ```
 
@@ -167,7 +167,7 @@ Therefore, we'll make use of the *IceSat2R::vsi_time_specific_orbits_wkt()* func
 
 <br>
 
-```{r}
+```r
 
 date_start = '2020-01-01'
 date_end = '2021-01-01'
@@ -239,7 +239,7 @@ The query returns 18 different Date-Time matches for our defined 1-year time per
 
 <br>
 
-```{r}
+```r
 
 orb_cyc_multi
 
@@ -270,7 +270,7 @@ We'll use the *mapview* R package to visualize our AOI bounding box with the int
 
 <br>
 
-```{r}
+```r
 
 # make the sf-objects valid
 orb_cyc_multi = sf::st_make_valid(orb_cyc_multi)
@@ -291,7 +291,7 @@ lft
 
 <br>
 
-```{r himalayas-rgts, fig.pos='h', out.width = "80%", out.height = "80%", fig.align = 'center', fig.cap = "Intersected RGTs", fig.alt="Intersected Reference Ground Tracks", echo = F, eval = T}
+```{r himalayas-rgts, fig.pos='h', out.width = "80%", out.height = "80%", fig.align = 'center', fig.cap = "Intersected RGTs", fig.alt="Intersected Reference Ground Tracks", echo = F}
 
 knitr::include_graphics("himalayas_rgts.png")
 
@@ -303,7 +303,7 @@ The output of *'vsi_time_specific_orbits_wkt()'* can be verified with the *OpenA
 
 <br>
 
-```{r}
+```r
 
 bbx_aoi = sf::st_bbox(obj = sf_wkt)
 
