@@ -1,4 +1,7 @@
 
+<img align="right" width="200" src="man/figures/hex_sticker.png"></img>
+
+
 ## IceSat2R
 
 <br>
@@ -304,9 +307,9 @@ If you use the code of this repository in your paper or research please cite bot
 @Manual{,
   title = {{IceSat2R}: ICESat-2 Altimeter Data using R},
   author = {Lampros Mouselimis},
-  year = {2024},
+  year = {2025},
   doi = 10.32614/CRAN.package.IceSat2R,
-  note = {R package version 1.0.6},
+  note = {R package version 1.0.7},
   url = {https://CRAN.R-project.org/package=IceSat2R},
 }
 ```
@@ -320,10 +323,10 @@ Please note that the IceSat2R project is released with a [Contributor Code of Co
 
 ## Acknowledgment
 
-This project received financial [support](https://www.r-consortium.org/projects) from the
+This project received financial [support](https://r-consortium.org/) from the
 
-<a href="https://www.r-consortium.org/all-projects/awarded-projects">
-<img src="https://www.r-consortium.org/wp-content/uploads/sites/13/2016/09/RConsortium_Horizontal_Pantone.png" width="300">
+<a href="https://r-consortium.org/all-projects/funded-projects.html">
+<img src="https://r-consortium.org/images/RConsortium_Horizontal_Pantone.webp" width="300">
 </a>
 
 <br>

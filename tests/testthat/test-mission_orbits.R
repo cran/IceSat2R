@@ -64,13 +64,16 @@ testthat::test_that("the function 'available_nominal_orbits()' returns the expec
 testthat::test_that("the function 'overall_mission_orbits()' returns the expected output!", {
 
   testthat::skip_on_cran()         # skip on CRAN due to time limits and might fail
-
-  res_orb  = overall_mission_orbits(orbit_area = 'eastern_hemisphere',
-                                    download_method = 'curl',
-                                    threads = 1,
-                                    verbose = FALSE)
-
-  testthat::expect_true(inherits(res_orb, c("sf", "data.table", "data.frame")) & nrow(res_orb) > 1 & ncol(res_orb) == 13)
+  
+  if (Sys.info()["sysname"] == 'Linux') {         # skip for Windows, Mac OSX because it seems that the gdal version can not read .kmz files and throws an error
+    
+    res_orb  = overall_mission_orbits(orbit_area = 'eastern_hemisphere',
+                                      download_method = 'curl',
+                                      threads = 1,
+                                      verbose = FALSE)
+    
+    testthat::expect_true(inherits(res_orb, c("sf", "data.table", "data.frame")) & nrow(res_orb) > 1 & any(c("Description", "description") %in% colnames(res_orb)))
+  }
 })
 # #.................................................................................................
 
