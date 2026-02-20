@@ -264,7 +264,7 @@ The ATLAS beam pattern on the ground changes depending on the orientation of the
 
 <br>
 
-Using a table to map the **strong** and **weak** beams (Reference: [sliderule-python documentation](https://slideruleearth.io/web/rtd/user_guide/Background.html#background))
+Using a table to map the **strong** and **weak** beams (Reference: [sliderule-python documentation](https://slideruleearth.io/web/rtd/background/ICESat-2.html)
 
 <br>
 
@@ -307,9 +307,9 @@ If you use the code of this repository in your paper or research please cite bot
 @Manual{,
   title = {{IceSat2R}: ICESat-2 Altimeter Data using R},
   author = {Lampros Mouselimis},
-  year = {2025},
+  year = {2026},
   doi = 10.32614/CRAN.package.IceSat2R,
-  note = {R package version 1.0.7},
+  note = {R package version 1.0.8},
   url = {https://CRAN.R-project.org/package=IceSat2R},
 }
 ```
@@ -323,9 +323,9 @@ Please note that the IceSat2R project is released with a [Contributor Code of Co
 
 ## Acknowledgment
 
-This project received financial [support](https://r-consortium.org/) from the
+This project received financial [support](https://r-consortium.org/all-projects/) from the
 
-<a href="https://r-consortium.org/all-projects/funded-projects.html">
+<a href="https://r-consortium.org/all-projects/">
 <img src="https://r-consortium.org/images/RConsortium_Horizontal_Pantone.webp" width="300">
 </a>
 

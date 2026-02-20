@@ -841,8 +841,8 @@ time_specific_orbits = function(date_from = NULL,
       sf_objs$Description = as.character(sf_objs$Description)
       descr_proc = strsplit(x = sf_objs$Description, split = ' ')          # in case that I have a 'Description' column, split by empty space
       #........................................................................... "start" error case with missing 'time' for midnight on Windows 
-      len_desc = lapply(descr_proc, function(x) length(x)) %>%
-        unlist() %>%
+      len_desc = lapply(descr_proc, function(x) length(x)) |>
+        unlist() |>
         table() 
       len_desc = as.integer(names(len_desc)[which.max(len_desc)])
       

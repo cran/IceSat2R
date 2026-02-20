@@ -26,7 +26,7 @@ This *second* vignette relies on the computation of *time specific orbits* (as w
 
 <br>
 
-Based on the [OpenAltimetry documentation](https://openaltimetry.org/datainfo.html) for the *ATL06* (ATLAS/ICESat-2 L3A Land Ice Height, Version 4) Product, *"This data set (ATL06) provides geolocated, land-ice surface heights (above the WGS 84 ellipsoid, ITRF2014 reference frame), plus ancillary parameters that can be used to interpret and assess the quality of the height estimates."*
+Based on the OpenAltimetry documentation for the *ATL06* (ATLAS/ICESat-2 L3A Land Ice Height, Version 4) Product, *"This data set (ATL06) provides geolocated, land-ice surface heights (above the WGS 84 ellipsoid, ITRF2014 reference frame), plus ancillary parameters that can be used to interpret and assess the quality of the height estimates."*
 
 <br>
 
@@ -870,7 +870,7 @@ s_subs
 
 <br>
 
-The [OpenAltimetry Data Dictionary](https://nsidc.org/sites/nsidc.org/files/technical-references/ICESat2_ATL06_data_dict_v004.pdf) includes the definitions for the column names of the output data.tables (except for the *beam* column which appears in the *'level3a'* product of the [OpenAltimetry API website](https://openaltimetry.org/data/swagger-ui/#/Public/getLevel3Data)),
+The OpenAltimetry Data Dictionary includes the definitions for the column names of the output data.tables (except for the *beam* column which appears in the *'level3a'* product of the OpenAltimetry API),
 
 * **segment_id**: *"Segment number, counting from the equator. Equal to the segment_id for the second of the two 20m ATL03 segments included in the 40m ATL06 segment"*
 * **h_li**: *"Standard land-ice segment height determined by land ice algorithm, corrected for first-photon bias, representing the median-based height of the selected 'signal photon events' (PEs)"*
