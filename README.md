@@ -264,7 +264,7 @@ The ATLAS beam pattern on the ground changes depending on the orientation of the
 
 <br>
 
-Using a table to map the **strong** and **weak** beams (Reference: [sliderule-python documentation](https://slideruleearth.io/web/rtd/background/ICESat-2.html)
+Using a table to map the **strong** and **weak** beams (Reference: [sliderule-python documentation](https://docs.slideruleearth.io/background/ICESat-2.html)
 
 <br>
 
@@ -309,7 +309,7 @@ If you use the code of this repository in your paper or research please cite bot
   author = {Lampros Mouselimis},
   year = {2026},
   doi = 10.32614/CRAN.package.IceSat2R,
-  note = {R package version 1.0.8},
+  note = {R package version 1.0.9},
   url = {https://CRAN.R-project.org/package=IceSat2R},
 }
 ```

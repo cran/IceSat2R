@@ -1,4 +1,9 @@
 
+## IceSat2R 1.0.9
+
+* I updated the vignettes due to CRAN errors (Error in loadNamespace(): there is no package called 'mapview'). In the vignettes I set `requireNamespace(..., quietly = TRUE)` which allows to test for the `noSuggests` type of checks. For `noSuggests` I had to use `Sys.setenv("_R_CHECK_DEPENDS_ONLY_" = "true")` before I use `R CMD check --as-cran`
+
+
 ## IceSat2R 1.0.8
 
 * I copied the 'htmlwidgets' directory from the archived (at 2026-02-19) 'leaflet.extras' R package which includes the 'bindings' and 'build' directories for 'draw' and 'draw-drag' which are required for the IceSat2R package
