@@ -4,7 +4,8 @@ knitr::opts_chunk$set(
   message = FALSE,
   fig.pos = "!H",
   echo = TRUE,
-  eval = TRUE
+  eval = TRUE,
+  screenshot.force = FALSE
 ) # this vignette by default does not evaluate the code snippets
 
 ## -----------------------------------------------------------------------------
